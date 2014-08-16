@@ -1,0 +1,213 @@
+\section{Secure App on Untrusted OS}
+\label{sec:problem1}
+
+\subsection{OS can be untrusted}
+
+Although commodity operating systems are developed by extremely professional
+software developers, the security provided by commodity operating systems is
+often inadequate. Trusted OS components include not just the kernel but also
+device drivers and system services that run with privilege (e.g., daemons that
+run as root in Linux). Once such privileged code is compromised, an attacker
+gains complete access to sensitive data on a system. The privileged operating
+system kernel can read/write any code/data region of any user mode process. Both
+privacy and integrity are imperiled by the hostile operating system.
+
+Besides directly manipulating a secure application's state, the hostile
+operating system kernel can also compromise the user mode application by Iago
+attack \cite{Iago}. On commodity operating systems, the application and kernel
+are conceptually peers and the system call API defines an RPC interface between
+them. A carefully chosen sequence of integer return values to Linux system calls
+can lead a supposedly protected process astray. The following sample code
+demonstrates one Iago attack. It maps a 1024 byte region of memory via the mmap2
+system call and then reads up to 1024 bytes into it from a file descriptor using
+the read system call. Since the kernel is responsible for memory management,
+instead of the address of the newly allocated memory region, returns an address
+on the stack.  The stack will be overwritten with up to 1024 bytes of the
+kernel's choice with the read system call. Therefore, a saved return address on
+the stack may be overwritten and the program can be coerced into executing a
+return-oriented program.
+
+\begin{lstlisting}[language=C]
+  p = mmap(NULL,1024,prot,flags,-1,0);
+  read(fd,p,1024);
+\end{lstlisting}
+
+To protect the secure application from the malicious OS, a mechanism should be
+used to isolate the secure application from the OS. In the meantime, the
+isolated application should also be able to use the OS services. Ideally, the
+Iago attack is prevented. In the following sections, we will discuss different
+mechanism on secure application protection.
+
+\begin{table*}[ht]
+	\centering
+	\begin{tabular}{|l|l|}
+		\hline
+		\textbf{Solution Category}      & \textbf{Research Papers} \\ \hline
+		Trusted Hardware Based & Flicker \cite{Flicker}, TrustVisor \cite{TrustVisor} \\ \hline
+		Hypervisor Based       & Overshadow \cite{Overshadow}, InkTag \cite{InkTag}, TrustVisor \cite{TrustVisor}, Cloud Terminal \cite{CloudTerminal}\\ \hline
+		Instrumentation Based  & Virtual Ghost \cite{VirtualGhost}\\ \hline
+		TrustZone Based        & TLR \cite{TLR}, VeriUI \cite{VeriUI}, TrustUI \cite{TrustUI}\\ \hline
+	\end{tabular}
+	\caption{Solution categorization on the protection of secure application
+	(PAL) from the untrusted OS.}
+	\label{my-label}
+\end{table*}
+
+\subsection{Trusted Hardware based}
+
+Trusted Hardware allows the execution of pieces of application logic (PAL) in an
+isolated environment. Flicker \cite{Flicker} leverages the hardware support for
+Trusted Platform Module (TPM) and late launch recently introduced from AMD's
+Secure Virtual Machine (SVM) technology. SVM chips are designed to allow the
+late launch of the software (e.g. Virtual Machine Monitor or Security Kernel) at
+an arbitrary time with the SKINIT instruction in CPU protection ring 0. As part
+of the SKINIT instruction, the processor first causes the TPM to reset the
+values of PCRs 17-23 to zero, and then transmits the contents of the PAL to the
+TPM so that it can be measured and extended into PCR 17. Software cannot reset
+PCR 17 without executing another SKINIT instruction. PALs can leverage TPM-based
+sealed storage to maintain state across Flicker sessions. Therefore, the
+sensitive task can be spitted into multiple sessions
+
+However, Flicker's performance is not promising, especially for multi-session
+PAL. At the beginning of each session, the TPM should decrypt sealed data from
+persistent storage to recover the state of the previous session of this PAL. At
+the end of this session, the TPM seals the data again and stores the data on
+persistent storage. The frequent encryption/decryption undermines the
+performance of Flicker. TrustVisor \cite{TrustVisor} improves the performance of
+Flicker by simulating the TPM-based cryptography operations on a micro-TPM. The
+micro-TPM is simulated by CPU chip. TrustVisor, which is a tiny hypervisor, is
+booted with the late launch. It is responsible for the registration, invoke and
+unregistration of all PALs.  TrustVisor isolates PAL from the untrusted
+operating system with the nested page table (NPT). Hardware TPM attests the
+integrity of the tiny hypervisor and the integrity of PAL is attested by the
+software emulated micro-TPM. TrustVisor is the combination of both trusted
+hardware and hypervisor based solutions. 
+
+\subsection{Hypervisor based}
+
+As we mentioned in last section, hypervisor can isolate the secure application
+from the untrusted operating system. Overshadow \cite{Overshadow} utilizes a
+binary translation based hypervisor with a mechanism called cloaking to prevent
+the guest operating system from reading or tampering application code, data and
+registers.  Cloaking is the mechanism to present an application context with a
+cleartexted view of its pages, and the OS context with an encrypted view. At any
+point in time, the page is mapped into only one shadow page table - either a
+protected application shadow used by cloaked user-space processes, or the system
+shadow used for all other accesses. Overshadow introduces a shim into the
+address space of the cloaked application, which cooperates with the VMM to
+mediate all interactions with the OS. The shim uses an explicit hypercall
+interface for interacting with the VMM. System call transitions between
+guest-user mode and guest-kernel mode are always trapped by a Binary Translating
+VMM.
+
+However, Overshadow has focused on simply isolating trusted code and data from
+the OS, with minimal support for securely using OS features, that is, it is not
+able to prevent Iago attack. It also doesn't support flexible access control and
+crash consistency. InkTag proposes paraverification, a technique that simplifies
+the hypervisor by forcing the untrusted OS to participate in its own
+verification. InkTag requires the untrusted OS to provide information and
+resources to both the hypervisor and application that allow them to efficiently
+verify the operating system's actions. Verifying that the OS provides system
+services correctly allows InkTag to avoid having to reason about the OS's
+implementation of these services. Trusted application code executes in a high
+assurance process, or HAP, which is isolated from the OS. Nearly all
+application-level changes are contained in a small, 2000-line library
+(libinktag) the use of which is largely encapsulated in the standard C library.
+
+Cloud Terminal \cite{CloudTerminal} protects the secure application by running
+the software on the remote server, instead of locally. In Cloud Terminal, the
+only software running on the client, with which the user interacts, is a
+lightweight secure thin terminal whose primary functionality is to render the
+bitmap to be rendered sent by the remote server. Most application logic is in a
+remote cloud rendering engine on the remote server. On the client side, the
+secure thin terminal is isolated and protected by the hypervisor. The tiny
+hypervisor helps supply a secure display and input path to remote software. The
+secure thin terminal has a very small TCB (23 KLOC) and no dependence on the
+untrusted OS, so it can be easily checked and remotely attested to.
+
+\subsection{Instrumentation based}
+
+Virtual Ghost protects application from a compromised or even hostile OS. It
+leverages compiler instrumentation (with LLVM) create ghost memory that the
+operating system cannot read or write. Virtual Ghost is based on the Secure
+Virtual Architecture (SVA). In SVA, all kernel and module code must first go
+through LLVM intermediate representation form (bitcode). The SVA VM translates
+code from virtual instruction set to the native instruction set of the hardware.
+SVA adds a set of instructions to LLVM called SVA-OS; these instructions replace
+the hardware-specific operations used by an OS to communicate with hardware and
+to do low-level state manipulation. During the translation from virtual
+instruction to native instruction, load/store operations are instrumented so
+that access to secure memory pages can be prevented from OS without unmapping or
+encrypting secure pages. Virtual Ghost also enforces Control Flow Integrity
+(CFI) on kernel code in order to ensure that the compiler instrumentation of
+kernel code is not bypassed. Virtual Ghost outperforms InkTag.
+
+\subsection{TrustZone based}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\columnwidth]{figures/trustzone.eps}
+\caption{Split CPU Mode with TrustZone Support}
+\label{fig:trustzone}
+\end{figure}
+
+Considering the limited computing resources on smartphones, hypervisor and
+instrumentation based solutions are not applicable to the smartphone. TrustZone
+is utilized on smartphone to protect the secure application. TrustZone is a
+hardware security technology incorporated into recent ARM processors. With
+TrustZone, the processor can execute instructions in one of two possible
+security modes, referred to as the normal world, where untrusted code executes,
+and the secure world, where secure services run as in Figure
+\ref{fig:trustzone}. These processor modes have independent memory address
+spaces and different privileges. While code running in the normal world cannot
+access the secure world address space, code running in the secure world can
+access the normal world address space in certain conditions. Besides memory,
+peripherals and interrupt are also world-sensitive. World switch is done via a
+special instruction called the Secure Monitor Call (smc).
+
+Trusted Language Runtime (TLR) \cite{TLR} is a system that protects the
+confidentiality and integrity of .Net mobile application from OS security
+breaches by separating and isolating the application's security-sensitive logic
+from the rest of the application. TLR and security-sensitive code are in the
+secure world of TrustZone. TLR is a small runtime engine that is capable of
+interpreting .Net managed code inside a trusted secure environment. It is
+carefully crafted by borrowing parts of the runtime engine design from the .NET
+Micro Framework (NETMF) so that the TCB is significantly smaller than a
+full-blown .NET framework and a full-featured OS. Security-sensitive code and
+data are in a Trustbox which is an isolation runtime environment that protects
+the integrity and confidentiality of code and data. The Trustlet specifies the
+secure data and an interface that defines what data can cross the boundary
+between the Trustbox and the untrusted world. With TLR, the developer should
+manually split the application into sensitive and nonsensitive part.  A secure
+application can package the code handling sensitive data into TrustLet and run
+it in the TrustBox in the Secure World.
+
+However, TLR does not support direct I/O within the Secure World. VeriUI
+\cite{VeriUI} is able to securely handle user inputs (i.e., passwords) and
+communication with remote servers. Smartphone applications often augment their
+functionality by accessing user data mentioned by services such as Twitter and
+Facebook. VeriUI is proposed to prevent phishing attacks by untrusted OS through
+a secure and isolated environment for password input and transmission. An app
+can invoke a web browser running in the secure environment of TrustZone to
+retrieve an OAuth token after the user successfully authenticates. Even the
+malicious OS cannot have access to the password data.  The secure kernel running
+in secure environment can use its protected resources (i.e., a vendor-installed
+public-key pair) to generate a signed attestation that includes a hash of the
+Secure World's system software as well as information about the user's login
+request.
+
+As VeriUI runs a Linux in TrustZone secure world to provide the attested login
+for users, it has a very large TCB. TrustUI \cite{TrustUI} takes a step further
+by excluding drivers for user-interacting devices like touch screen from its
+trusted computing base. TrustUI is a new trusted path design for mobile devices
+that enables secure interaction between end users and services. It is based on
+ARM's TrustZone technology and requires no trust of the commodity software
+stack. TrustUI adopts a mechanism that logically splits a device driver into two
+parts: a backend running in the normal world and a frontend running in the
+secure world. The backend part is the unmodidied driver and its corresponding
+wrapper in the normal world, while the frontend part works on top of it and
+provides safe access to device for secure pages. The two parts communicate
+through corresponding proxy modules running in both worlds which exchange data
+through shared memory.
+
+

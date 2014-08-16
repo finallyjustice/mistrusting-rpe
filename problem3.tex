@@ -1,0 +1,48 @@
+\section{Two-Way Protection}
+\label{sec:problem3}
+
+We discussed the protection of secure application from untrusted OS (e.g.,
+TrustVisor \cite{TrustVisor}) in section \ref{sec:problem1} and the protection
+of benign OS from untrusted application (e.g., Native Client \cite{NaCl}) in
+section \ref{sec:problem1}. In this section, we discuss the removing of trust
+between the application and operating system. Within my knowledge, at this time,
+MiniBox \cite{MiniBox} is the first and the only attempt toward a practical
+two-way sandbox for x86 native applications by combining TrustVisor and
+NativeClient.
+
+Platform-as-a-Service (PaaS) is one of the most widely commercialized forms of
+cloud computing. According to Google, in 2012, there were 1M active applications
+running on Google App Engine, where untrusted applications are sent my
+customers. Therefore, it is critical to protect the cloud platform from the
+untrusted applications. Besides cloud provider such as Google, security on PaaS
+is also a concern for cloud customers. People should rethink the security model
+of PaaS cloud computing because a two-way sandbox is desired.
+
+Although it seems promising to combine a one-way sandbox (e.g., TrustVisor) and
+a two-way memory isolation mechanism (e.g., Native Client) to establish two-way
+protection, there are many challenges. First, the system design needs
+deliberation. Second, the interface between software modules for OS protection
+and the application should be minimized and secure. Finally, the design of
+TrustVisor doesn't support Iago attack prevention. The final system design
+should be able to protect application against Iago attack.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\columnwidth]{figures/minibox.eps}
+\caption{MiniBox Architecture}
+\label{fig:minibox}
+\end{figure}
+
+MiniBox \cite{MiniBox} combines the one-way sandbox for x86 native code and
+hypervisor-based two-way memory isolation. As in figure \ref{fig:minibox}, the
+sandbox is split into service runtime modules and OS protection modules. The
+service runtime is included in the isolated memory space with the application
+together to support application execution. The original disassembly based
+sandbox is not required anymore because the hypervisor not only isolates the
+application from OS, but also isolates the OS from the application. To prevent
+Iago attacks, the system calls are divided into sensitive calls and
+non-sensitive calls. All sensitive calls are handled directly by a LibOS
+\cite{LibOS}, which the application trusts, in the Mutually Isolated Execution
+Environment (MIEE).  Non-sensitive calls will be forwarded to the Regular
+Environment (RE). The OS in RE handles the non-sensitive calls mediated by the
+OS protection module in RE.

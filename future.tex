@@ -14,8 +14,35 @@ with ARM architecture to build the next generation of servers in the cloud.
 There are already many ARM development boards published, such as Raspberry Pi,
 BeagleBone and Cubitruck. 
 
-In the future, we want to explore the
-security problems on ARM architecture. Although prior works such as TLR
-\cite{TLR}, VeriUI \cite{VeriUI} and TrustUI \cite{TrustUI} use security
-features of ARM, they are designed especially for smartphones. We propose the
-first solution to execute the secure PAL on ARM architecture. 
+In the future, we want to explore the security problems on ARM architecture.
+Although prior works such as TLR \cite{TLR}, VeriUI \cite{VeriUI} and TrustUI
+\cite{TrustUI} use security features of ARM, they are designed especially for
+smartphones. We propose the first solution to execute the secure PAL on ARM
+architecture both on a single server or in the cloud environment. Virtualization
+can effective achieve the mutually memory isolation between application and OS.
+However, currently the hardware virtualization extension is not supported by all
+ARM CPUs.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\columnwidth]{figures/future.eps}
+\caption{Secure execution of PAL on ARM}
+\label{fig:future}
+\end{figure}
+
+Our proposal, as in Figure \ref{future}, leverages the TrustZone, which is supported by most ARM CPUs, to
+isolate the secure PAL in the secure world. The regular OS is running in the
+normal world. The secure PAL is executed in the secure world. Unlikne
+virtualization which can create more than one isolated environment, there is
+only one secure world with TrustZone. To prevent the secure PAL of one
+application from compromising the PAL of another, all PALs are sandboxed in the
+secure world. We will use TrustZone to emulate the secure boot, late launch and
+TPM operations. As ARM boards usually have limited resources, , the secure world
+tiny kernel will not be loaded into memory unless the execution of PAL is
+registered and triggered. To prevent Iago attack, we divide the system calls
+into sensitive calls and non-sensitive calls. All sensitive calls, which can be
+used by malicious OS to mount the Iago attack, will be handled directly by the
+tiny kernel in secure world. Non-sensitive calls will be redirected to the
+untrusted OS in normal world. As the tiny kernel is only responsible for
+supporting the Micro-TPM, memory management and handling sensitive system call,
+the TCB is small.  

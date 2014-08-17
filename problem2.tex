@@ -7,9 +7,9 @@ of untrusted application and untrusted code as untrusted module. The untrusted
 module can be pieces of native code downloaded by a web browser, an application
 uploaded and executed on the PaaS server, or an Android application downloaded
 from an untrusted third part. Although the isolation of untrusted module can
-prevent it from infecting the operating system, it is far from enough. There are
-other challenges. First, the isolated code module wants to interact with the
-operating system services via system calls. Second, the isolation (sandbox)
+prevent it from infecting the operating system, it is far from enough. There
+are other challenges. First, the isolated code module wants to interact with
+the operating system services via system calls. Second, the isolation (sandbox)
 should not impact the performance of program execution. Third, a low
 implementation overhead is expected, that is, the modification to compiler,
 linker, application source code and operating system kernel source code should
@@ -17,8 +17,8 @@ be minimized. Last, since the smartphone has limited resources, the isolation
 should be lightweight. 
 
 In this paper, we categorize the prior works according to the granularity of
-isolation. The granularity of isolation varies, including intro-process,
-inter-process, inter-namespace and inter-VM. 
+isolation as in Table \ref{table:problem2}. The granularity of isolation varies,
+including intro-process, inter-process, inter-namespace and inter-VM. 
 
 \begin{table*}[ht]
 	\centering
@@ -32,19 +32,19 @@ inter-process, inter-namespace and inter-VM.
 	\end{tabular}
 	\caption{Solution categorization on the protection of OS from the untrusted
 	application.}
-	\label{my-label}
+	\label{table:problem2}
 \end{table*}
 
 \subsection{Inter-VM based}
 \label{sec:problem2:inter-vm}
 
-The naive approach is to isolate each untrusted module into its correpsonding
-VM. There are a variety of virtual machine monitors, including Xen \cite{xen}, KVM \cite{kvm}, Qemu
-\cite{qemu},
-and VMWare \cite{vmware}.  Recently, the hardware virtualization extension has been added into
-the ARM and the ARM based KVM \cite{KVM/ARM} is integrated into the Linux kernel
-since Linux 3.9. Since this approach is clear and self-explained, we will not
-discuss it in detail in this paper.
+The naive approach is to isolate each untrusted module into its corresponding
+VM. There are a variety of virtual machine monitors, including Xen \cite{xen},
+KVM \cite{kvm}, Qemu \cite{qemu}, and VMWare \cite{vmware}.  Recently, the
+hardware virtualization extension has been added into the ARM and the ARM based
+KVM \cite{KVM/ARM} is integrated into the Linux kernel since Linux 3.9. Since
+this approach is clear and self-explained, we will not discuss it in detail in
+this paper.
 
 \subsection{Intra-Process based}
 \label{sec:problem2:intra-process}
@@ -66,8 +66,8 @@ sandbox.
 
 A weakness of PittSFIeld is it cannot effectively mediate the access from
 untrusted module to operating system services. Besides isolating the untrusted
-module, Native Client \cite{NaCl} also allows the module to interact
-with services, such as file I/O and local database access, by the combination of
+module, Native Client \cite{NaCl} also allows the module to interact with
+services, such as file I/O and local database access, by the combination of
 intra-process and inter-process approaches.  An Intra-Process based sandbox is
 used to isolate the untrusted module from the runtime service, which resides in
 the same address space as the sandboxed untrusted module. Runtime service
@@ -78,18 +78,18 @@ based solution in the next section.
 \subsection{Inter-Process based}
 \label{sec:problem2:inter-process}
 
-Krude \etal \cite{Krude} is an inter-process based isolation approach to sandbox
-the untrusted module. It is specifically designed for PaaS architectures, where
+Krude \etal \cite{Krude} propose an inter-process based approach to sandbox the
+untrusted module. It is specifically designed for PaaS architectures, where
 code execution needs to be isolated to protect tenants from unauthorized access
 to their data by other tenants and to protect the host system from any type of
 intrusion by other tenants. The untrusted module is uploaded to the PaaS server
-and it is isolated in a new process. Krude \etal uses the process barrier and
-the seccomp filter mechanism to restrict access to memory and to the system call
-interface. Almost all system calls are blocked for the isolated process. Besides
-memory allocation and deallocation, the isolate can communicate with OS by
-sending to request to a supervisor process via pipe, which is the IPC mechanism
-on Linux. The supervisor process will process the request and send the response
-back to the isolated process also via pipe.
+and it is isolated in a new process. Krude \etal use the process barrier and
+the seccomp filter mechanism to restrict access to memory and to the system
+call interface. Almost all system calls are blocked for the isolated process.
+Besides memory allocation and deallocation, the isolate can communicate with OS
+by sending to request to a supervisor process via pipe, which is the IPC
+mechanism on Linux. The supervisor process will process the request and send
+the response back to the isolated process also via pipe.
 
 \subsection{Inter-Namespace based}
 \label{sec:problem2:inter-namespace}
@@ -102,24 +102,25 @@ enterprise. Therefore, many users carry multiple phones to accommodate work,
 personal and geographic mobility need. Cells proposes a smartphone
 virtualization solution so that multiple virtual smartphones can run
 simultaneously on the same physical smartphone in an isolated, secure manner.
+
 Unlike the virtualization techniques mentioned in section
 \ref{sec:problem2:inter-vm}, Cells leverages a lightweight OS-level
-virtualization by the utilization of namespace. Linux namespace is being used by
-OpenVZ \cite{openvz} and LXC \cite{lxc}. A set of processes can be grouped into
-the same namespace. Each Linux namespace has PID namespace isolation, network
-namespace isolation, UTS namespace isolation, mount namespace islation and IPC
-namespace isolation.
+virtualization by the utilization of namespace. Linux namespace is being used
+by OpenVZ \cite{openvz} and LXC \cite{lxc}. A set of processes can be grouped
+into the same namespace. Each Linux namespace has PID namespace isolation,
+network namespace isolation, UTS namespace isolation, mount namespace isolation
+and IPC namespace isolation.
 
-Cells observes that smartphones display only a single application at a time, and
-introduces a usage model which has one foreground Virtual Phone (VP) that is
-displayed and multiple background VPs that are not displayed at any given time.
-The foreground VP is always given direct access to hardware devices while the
-back ground VPs are given shared access to hardware devices when the foreground
-VP does not require exclusive access. Cells provides novel kernel-level and
-user-level device namespace mechanisms to efficiently multiplex hardware devices
-across multiple VPs. Therefore, untrusted application inside personal VP
-(namespace) will not be able to compromise the trusted application inside
-enterprise VP. 
+Cells observes that smartphones display only a single application at a time,
+and introduces a usage model which has one foreground Virtual Phone (VP) that
+is displayed and multiple background VPs that are not displayed at any given
+time. The foreground VP is always given direct access to hardware devices while
+the back ground VPs are given shared access to hardware devices when the
+foreground VP does not require exclusive access. Cells provides novel
+kernel-level and user-level device namespace mechanisms to efficiently
+multiplex hardware devices across multiple VPs. Therefore, untrusted
+application inside personal VP (namespace) will not be able to compromise the
+trusted application inside enterprise VP.
 
 While Cells aims to embrace the emerging Bring-Your-Own-Device (BYOD) paradigm,
 each VP is treated equally and the isolation is achieved at the coarse-grained
@@ -135,7 +136,6 @@ SurfaceFlinger service) and Dalvik virtual machine.  AIR does not need to be
 trusted as it might be potentially compromised by untrusted application. AirBag
 multiplexes hardware resources between the AIR and native runtime by either
 creating a second resource (e.g., memory buffer) or creating a proxy between
-runtimes and hardware to mediate access from different runtimes.
-
+runtimes and hardware to mediate access from different runtimes. 
 
 

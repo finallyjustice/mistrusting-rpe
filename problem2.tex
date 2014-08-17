@@ -39,8 +39,9 @@ inter-process, inter-namespace and inter-VM.
 \label{sec:problem2:inter-vm}
 
 The naive approach is to isolate each untrusted module into its correpsonding
-VM. There are a variety of virtual machine monitors, including Xen, KVM, Qemu,
-and VMWare.  Recently, the hardware virtualization extension has been added into
+VM. There are a variety of virtual machine monitors, including Xen \cite{xen}, KVM \cite{kvm}, Qemu
+\cite{qemu},
+and VMWare \cite{vmware}.  Recently, the hardware virtualization extension has been added into
 the ARM and the ARM based KVM \cite{KVM/ARM} is integrated into the Linux kernel
 since Linux 3.9. Since this approach is clear and self-explained, we will not
 discuss it in detail in this paper.
@@ -104,9 +105,10 @@ simultaneously on the same physical smartphone in an isolated, secure manner.
 Unlike the virtualization techniques mentioned in section
 \ref{sec:problem2:inter-vm}, Cells leverages a lightweight OS-level
 virtualization by the utilization of namespace. Linux namespace is being used by
-OpenVZ and LXC. A set of processes can be grouped into the same namespace. Each
-Linux namespace has PID namespace isolation, network namespace isolation, UTS
-namespace isolation, mount namespace islation and IPC namespace isolation.
+OpenVZ \cite{openvz} and LXC \cite{lxc}. A set of processes can be grouped into
+the same namespace. Each Linux namespace has PID namespace isolation, network
+namespace isolation, UTS namespace isolation, mount namespace islation and IPC
+namespace isolation.
 
 Cells observes that smartphones display only a single application at a time, and
 introduces a usage model which has one foreground Virtual Phone (VP) that is

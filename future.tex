@@ -7,9 +7,9 @@ and their associated transactions, companies such as Amazon, Facebook, and
 Google run immense data centers with until-recently unimaginable computation and
 storage capacities. As online services become pervasive, projections indicate
 that electricity consumed in global data centers worldwide in 2010 is more than
-200B KWh, between 1.1\% and 1.5\% of worldwide electricity use. Three years ago,
+200B KWh, between 1.1\% and 1.5\% of worldwide electricity use \cite{times}. Three years ago,
 Google announced that their facilities have a continuous electricity usage
-equivalent to powering 200,000 homes.Therefore, it is promising to replace x86
+equivalent to powering 200,000 homes \cite{nytimes-google}.Therefore, it is promising to replace x86
 with ARM architecture to build the next generation of servers in the cloud.
 There are already many ARM development boards published, such as Raspberry Pi,
 BeagleBone and Cubitruck. 
@@ -30,7 +30,7 @@ ARM CPUs.
 \label{fig:future}
 \end{figure}
 
-Our proposal, as in Figure \ref{future}, leverages the TrustZone, which is supported by most ARM CPUs, to
+Our proposal, as in Figure \ref{fig:future}, leverages the TrustZone, which is supported by most ARM CPUs, to
 isolate the secure PAL in the secure world. The regular OS is running in the
 normal world. The secure PAL is executed in the secure world. Unlikne
 virtualization which can create more than one isolated environment, there is

@@ -57,7 +57,7 @@ mechanism on secure application protection.
 
 Trusted Hardware allows the execution of pieces of application logic (PAL) in an
 isolated environment. Flicker \cite{Flicker} leverages the hardware support for
-Trusted Platform Module (TPM) and late launch recently introduced from AMD's
+Trusted Platform Module (TPM) \cite{TPM} and late launch recently introduced from AMD's
 Secure Virtual Machine (SVM) technology. SVM chips are designed to allow the
 late launch of the software (e.g. Virtual Machine Monitor or Security Kernel) at
 an arbitrary time with the SKINIT instruction in CPU protection ring 0. As part
@@ -130,7 +130,7 @@ untrusted OS, so it can be easily checked and remotely attested to.
 Virtual Ghost protects application from a compromised or even hostile OS. It
 leverages compiler instrumentation (with LLVM) create ghost memory that the
 operating system cannot read or write. Virtual Ghost is based on the Secure
-Virtual Architecture (SVA). In SVA, all kernel and module code must first go
+Virtual Architecture (SVA) \cite{SVA}. In SVA, all kernel and module code must first go
 through LLVM intermediate representation form (bitcode). The SVA VM translates
 code from virtual instruction set to the native instruction set of the hardware.
 SVA adds a set of instructions to LLVM called SVA-OS; these instructions replace
@@ -139,7 +139,7 @@ to do low-level state manipulation. During the translation from virtual
 instruction to native instruction, load/store operations are instrumented so
 that access to secure memory pages can be prevented from OS without unmapping or
 encrypting secure pages. Virtual Ghost also enforces Control Flow Integrity
-(CFI) on kernel code in order to ensure that the compiler instrumentation of
+(CFI) \cite{CFI} on kernel code in order to ensure that the compiler instrumentation of
 kernel code is not bypassed. Virtual Ghost outperforms InkTag.
 
 \subsection{TrustZone based}
@@ -153,6 +153,7 @@ kernel code is not bypassed. Virtual Ghost outperforms InkTag.
 
 Considering the limited computing resources on smartphones, hypervisor and
 instrumentation based solutions are not applicable to the smartphone. TrustZone
+\cite{trustzone}
 is utilized on smartphone to protect the secure application. TrustZone is a
 hardware security technology incorporated into recent ARM processors. With
 TrustZone, the processor can execute instructions in one of two possible

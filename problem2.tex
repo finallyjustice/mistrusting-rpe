@@ -27,8 +27,8 @@ inter-process, inter-namespace and inter-VM.
 		\textbf{Solution Category}      & \textbf{Research Papers} \\ \hline
 		Inter-VM Based         & KVM/ARM \cite{KVM/ARM} \\ \hline
 		Intra-Process Based    & SFI \cite{SFI}, PittSFIeld \cite{PittSFIeld}, Native Client \cite{NaCl} \\ \hline
-		Inter-Process Based    & Native Client \cite{NaCl}, Krude \etal \cite{Krude}, TrustDroid \cite{TrustDroid}\\ \hline
-		Inter-Namespace Based  & Cells \cite{Cells}, AirBag \cite{AirBag} \\ \hline	
+		Inter-Process Based    & Native Client \cite{NaCl}, Krude \etal \cite{Krude} \\ \hline
+		Inter-Namespace Based  & TrustDroid \cite{TrustDroid}, Cells \cite{Cells}, AirBag \cite{AirBag} \\ \hline	
 	\end{tabular}
 	\caption{Solution categorization on the protection of OS from the untrusted
 	application.}
@@ -36,6 +36,7 @@ inter-process, inter-namespace and inter-VM.
 \end{table*}
 
 \subsection{Inter-VM based}
+\label{sec:problem2:inter-vm}
 
 The naive approach is to isolate each untrusted module into its correpsonding
 VM. There are a variety of virtual machine monitors, including Xen, KVM, Qemu,
@@ -45,6 +46,7 @@ since Linux 3.9. Since this approach is clear and self-explained, we will not
 discuss it in detail in this paper.
 
 \subsection{Intra-Process based}
+\label{sec:problem2:intra-process}
 
 Intra-Process protection is to isolate the untrusted module from the other
 memory regions in the same address space. SFI \cite{SFI} is proposed to sandbox
@@ -73,6 +75,7 @@ including web browser and other services. This is similar to the Inter-Process
 based solution in the next section.
 
 \subsection{Inter-Process based}
+\label{sec:problem2:inter-process}
 
 Krude \etal \cite{Krude} is an inter-process based isolation approach to sandbox
 the untrusted module. It is specifically designed for PaaS architectures, where
@@ -88,7 +91,49 @@ on Linux. The supervisor process will process the request and send the response
 back to the isolated process also via pipe.
 
 \subsection{Inter-Namespace based}
+\label{sec:problem2:inter-namespace}
 
-Namespace can be used to group a set of processes together in an isolated
-environment. 
+The Inter-Namespace based approach is primary proposed for smartphone running
+Android. Nowadays, smartphones are ubiquitous. Many use the smartphone both for
+working and personal needs. However, the personal applications downloaded from
+the untrusted website can compromise the application issued by the trusted
+enterprise. Therefore, many users carry multiple phones to accommodate work,
+personal and geographic mobility need. Cells proposes a smartphone
+virtualization solution so that multiple virtual smartphones can run
+simultaneously on the same physical smartphone in an isolated, secure manner.
+Unlike the virtualization techniques mentioned in section
+\ref{sec:problem2:inter-vm}, Cells leverages a lightweight OS-level
+virtualization by the utilization of namespace. Linux namespace is being used by
+OpenVZ and LXC. A set of processes can be grouped into the same namespace. Each
+Linux namespace has PID namespace isolation, network namespace isolation, UTS
+namespace isolation, mount namespace islation and IPC namespace isolation.
+
+Cells observes that smartphones display only a single application at a time, and
+introduces a usage model which has one foreground Virtual Phone (VP) that is
+displayed and multiple background VPs that are not displayed at any given time.
+The foreground VP is always given direct access to hardware devices while the
+back ground VPs are given shared access to hardware devices when the foreground
+VP does not require exclusive access. Cells provides novel kernel-level and
+user-level device namespace mechanisms to efficiently multiplex hardware devices
+across multiple VPs. Therefore, untrusted application inside personal VP
+(namespace) will not be able to compromise the trusted application inside
+enterprise VP. 
+
+While Cells aims to embrace the emerging Bring-Your-Own-Device (BYOD) paradigm,
+each VP is treated equally and the isolation is achieved at the coarse-grained
+VP boundary. Unlike Cells, AirBag \cite{AirBag}'s objective is to boost the
+smartphone's defense capability against the malware infection by isolating the
+untrusted application in the AirBag environment. By dynamically creating an
+isolated runtime environment with its own dedicated namespace and virtualized
+system resources, AirBag is able to protect the OS from the malicious untrusted
+applications, e.g., an Android game repacked with the malware. AirBag creates
+and decouples an Application Isolation Runtime (AIR) from the native Android
+runtime, which contains Java \& Native Libraries, Application framework (e.g.,
+SurfaceFlinger service) and Dalvik virtual machine.  AIR does not need to be
+trusted as it might be potentially compromised by untrusted application. AirBag
+multiplexes hardware resources between the AIR and native runtime by either
+creating a second resource (e.g., memory buffer) or creating a proxy between
+runtimes and hardware to mediate access from different runtimes.
+
+
 

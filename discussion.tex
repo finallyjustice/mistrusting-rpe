@@ -1,2 +1,42 @@
 \section{Discussion}
 \label{sec:discussion}
+
+\subsection{More Dimensions} 
+
+In this paper, we discuss prior works in just one dimension, the trust between
+the application and OS. We divide prior works into "App does not trust OS", "OS
+does not trust App" and "Mutually Mistrusting". There are other dimensions to
+discuss the prior works. For instance, some works \cite{Flicker, TrustVisor,
+Overshadow, InkTag, VirtualGhost, CloudTerminal, SFI, PittSFIeld, NaCl, Krude,
+MiniBox} are proposed for PC and some works \cite{TLR, VeriUI, TrustUI,
+TrustDroid, Cells, AirBag} are proposed for smartphone. While some works are
+proposed for a local PC or smartphone, some works are proposed for cloud
+environment, such as PaaS \cite{Krude, MiniBox}. Flicker and AirBag only work
+for single application, others such as TrustVisor Cells and MiniBox can support
+many applications from different users simultaneously. Some works are designed
+to support the protection and isolation of just pieces of application logic
+(PAL), Overshadow and AirBag support the granularity of the whole application.
+Overshadow does not require the modification to the source code of the
+application while InkTag requires the user to change the way of programming.
+
+\subsection{Limitation}
+
+Although many prior works have already solved the problems with a variety of
+mechanisms, there still exist some limitations. While MiniBox \cite{MiniBox} is
+the first known attempt to remove the trust between the application and OS on
+PaaS, it supports only a single guest OS at this time. There is no two-way
+protection on Android. Android makes the problem more complex. Unlike Linux,
+where one task is implemented as a single application, the task on Android is
+usually accomplished by a set of applications together. The compromised Android
+runtime is able to infect the application in a way that is similar to Iago
+attack. It is expected that the Android application cannot be compromised even
+its underpinning runtime is malicious. We hope to investigate how Linux kernel
+helps verify the behavior of a compromised Android runtime.
+
+The hypervisor-based isolation solutions, including TrustVisor, InkTag and
+MiniBox, cause overhead in context switch. The VMFUNC instruction released on
+the latest Intel 4th Generation Processor enables the software in guest OS to
+switch the hardware Extended Page Table (EPT) without the VM exit. Since VM exit
+is the reason for performance overhead of VM, we hope the investigation on how
+how to perform secure environment switch using the VMFUNC instruction will
+improve the performance of hypervisor based solution.

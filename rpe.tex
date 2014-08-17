@@ -86,18 +86,19 @@
 Commodity operating systems, e.g. Linux and Android, running on PC or
 smartphone, are ubiquitous in home, commercial, government, and military
 settings. The booming popularity of PC and smartphone makes the commodity
-operating system an attractive target for attacks. These systems are tasked with
-a variety of applications, e.g. from secure software provided by trusted
-organizations to regular applications including games and web browsers
-downloaded from untrusted third-party website.
+operating system an attractive target for attacks. These systems are tasked
+with a variety of applications, e.g. from secure software provided by trusted
+enterprises to regular applications including games and web browsers downloaded
+from untrusted third-party website.
 
 Since PC and smartphone are used both for working and entertainment, both
-trusted and untrusted applications are installed on the commodity operating
-system. The complex interface between malicious applications and the operating
-system kernel makes the latter one vulnerable to malwares. The compromised
-untrusted operating system is able to break both privacy and integrity of secure
-applications. The user mode secure application is not tamper-resistant to the
-privileged operating system kernel.
+trusted and untrusted applications are installed on the same commodity
+operating system. The complex interface between malicious applications and the
+operating system kernel makes the latter one vulnerable to malware. The
+compromised untrusted operating system is able to break both privacy and
+integrity of secure applications. The user mode secure application is not
+tamper-resistant and immune to the privileged malicious operating system
+kernel.
 
 Various methods have been proposed to execute mutually mistrusting software on
 commodity operating systems. In this talk, we divide the state of the art
@@ -106,8 +107,8 @@ application from the untrusted operating system. Second, we discuss the
 isolation of untrusted application from the benign operating system. Third, we
 discuss how to remove the trust relationship between application and operating
 system, that is, neither application nor operating system trust each other. We
-finally propose an framework for the secure execution of sensitive code on ARM
-architecture.
+finally propose a framework for the secure execution of sensitive code on ARM
+architecture with TrustZone technology.
 %\end{abstract}
 
 \input{introduction}

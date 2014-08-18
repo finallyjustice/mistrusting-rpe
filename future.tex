@@ -19,7 +19,7 @@ to sample 64-bit ARM Opteron processors \cite{amdarm}.
 In the future, we want to explore the security problems on ARM architecture.
 Although prior works such as TLR \cite{TLR}, VeriUI \cite{VeriUI} and TrustUI
 \cite{TrustUI} also use security features of ARM, they are designed especially
-for smartphones. We propose the first solution to execute the secure PAL on ARM
+for smartphones. We propose the first solution to execute the secure PAL for ARM
 architecture either on a single server or in the cloud environment.
 Virtualization can effectively achieve the mutually memory isolation between
 application and OS. However, currently the hardware virtualization extension is
@@ -48,4 +48,4 @@ sensitive calls, which can be used by malicious OS to mount the Iago attack,
 will be handled directly by the tiny kernel in secure world. Non-sensitive
 calls will be redirected to the untrusted OS in normal world. As the tiny
 kernel is only responsible for supporting the Micro-TPM, memory management and
-handling sensitive system call the TCB is small.
+handling sensitive system calls, the TCB is small.

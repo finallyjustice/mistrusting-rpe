@@ -5,12 +5,13 @@
 
 Although commodity operating systems are developed by extremely professional
 software developers, the security provided by commodity operating systems is
-often inadequate. Trusted OS components include not just the kernel but also
-device drivers and system services that run with privilege (e.g., daemons that
-run as root in Linux). Once such privileged code is compromised, an attacker
-gains complete access to sensitive data on a system. The privileged operating
-system kernel can read/write any code/data region of any user mode process.
-Both privacy and integrity are imperiled by the hostile operating system.
+often inadequate. Trusted OS components include not only the kernel but also
+device drivers and system services that run with root privilege (e.g., daemons
+that run as root in Linux). Once such privileged code is compromised, an
+attacker gains complete access to sensitive data on a system. The privileged
+operating system kernel can read/write any code/data region of any user mode
+process.  Both privacy and integrity are imperiled by the hostile operating
+system.
 
 Besides directly manipulating a secure application's state, the hostile
 operating system kernel can also compromise the user mode application by Iago
@@ -36,7 +37,7 @@ To protect the secure application from the malicious OS, a mechanism should be
 used to isolate the secure application from the OS. In the meantime, the
 isolated application should also be able to use the OS services. Ideally, the
 Iago attack is prevented. In the following sections, we will discuss different
-mechanism on secure application protection. We divide the prior works into four
+mechanisms on secure application protection. We divide the prior works into four
 classes as in Table \ref{table:problem1}.
 
 \begin{table*}[ht]
@@ -67,7 +68,7 @@ causes the TPM to reset the values of PCRs 17-23 to zero, and then transmits
 the contents of the PAL to the TPM so that it can be measured and extended into
 PCR 17. Software cannot reset PCR 17 without executing another SKINIT
 instruction. PALs can leverage TPM-based sealed storage to maintain state
-across Flicker sessions. Therefore, the sensitive task can be spitted into
+across Flicker sessions. Therefore, the sensitive task can be spit into
 multiple sessions.
 
 However, Flicker's performance is not promising, especially for multi-session
@@ -120,17 +121,17 @@ Cloud Terminal \cite{CloudTerminal} protects the secure application by running
 the software on the remote server, instead of locally. In Cloud Terminal, the
 only software running on the client, which the user interacts with, is a
 lightweight secure thin terminal whose primary functionality is to render the
-bitmap to be rendered sent by the remote server. Most application logic is in a
+bitmap sent by the remote server. Most application logic is in a
 remote cloud rendering engine on the remote server. On the client side, the
 secure thin terminal is isolated and protected by the hypervisor. The tiny
 hypervisor helps supply a secure display and input path to remote software. The
 secure thin terminal has a very small TCB (23 KLOC) and no dependence on the
-untrusted OS, so it can be easily checked and remotely attested to.
+untrusted OS. Therefore it can be easily checked and remotely attested to.
 
 \subsection{Instrumentation based}
 
 Virtual Ghost protects application from a compromised or even hostile OS. It
-leverages compiler instrumentation (with LLVM) create ghost memory that the
+leverages compiler instrumentation (with LLVM) to create ghost memory that the
 operating system cannot read or write. Virtual Ghost is based on the Secure
 Virtual Architecture (SVA) \cite{SVA}. In SVA, all kernel and module code must
 first go through LLVM intermediate representation form (bitcode). The SVA VM
@@ -143,7 +144,6 @@ operations are instrumented so that access to secure memory pages can be
 prevented from OS without unmapping or encrypting secure pages. Virtual Ghost
 also enforces Control Flow Integrity (CFI) \cite{CFI} on kernel code in order
 to ensure that the compiler instrumentation of kernel code is not bypassed.
-Virtual Ghost outperforms InkTag.
 
 \subsection{TrustZone based}
 

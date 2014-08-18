@@ -3,13 +3,13 @@
 
 In this section, we discuss the protection of the operating system from an
 untrusted application or a piece of untrusted code. In this paper, we call both
-of untrusted application and untrusted code as untrusted module. The untrusted
+untrusted application and untrusted code as untrusted module. The untrusted
 module can be pieces of native code downloaded by a web browser, an application
 uploaded and executed on the PaaS server, or an Android application downloaded
-from an untrusted third part. Although the isolation of untrusted module can
-prevent it from infecting the operating system, it is far from enough. There
-are other challenges. First, the isolated code module wants to interact with
-the operating system services via system calls. Second, the isolation (sandbox)
+from an untrusted third-party website. Although the isolation of untrusted module can
+prevent it from infecting the operating system, it is far from enough. There are
+other challenges. First, the isolated code module wants to interact with the
+operating system services via system calls. Second, the isolation (sandbox)
 should not impact the performance of program execution. Third, a low
 implementation overhead is expected, that is, the modification to compiler,
 linker, application source code and operating system kernel source code should
@@ -18,7 +18,7 @@ should be lightweight.
 
 In this paper, we categorize the prior works according to the granularity of
 isolation as in Table \ref{table:problem2}. The granularity of isolation varies,
-including intro-process, inter-process, inter-namespace and inter-VM. 
+including intra-process, inter-process, inter-namespace and inter-VM. 
 
 \begin{table*}[ht]
 	\centering
@@ -49,7 +49,7 @@ this paper.
 \subsection{Intra-Process based}
 \label{sec:problem2:intra-process}
 
-Intra-Process protection is to isolate the untrusted module from the other
+Intra-Process protection is to isolate the untrusted module from other
 memory regions in the same address space. SFI \cite{SFI} is proposed to sandbox
 the untrusted module by rewriting the untrusted code at the instruction level,
 that is, to instrument store/load and control flow instructions. However, it
@@ -72,21 +72,20 @@ intra-process and inter-process approaches.  An Intra-Process based sandbox is
 used to isolate the untrusted module from the runtime service, which resides in
 the same address space as the sandboxed untrusted module. Runtime service
 mediates the communication between the untrusted module and other processes
-including web browser and other services. This is similar to the Inter-Process
-based solution in the next section.
+including web browser and other services. 
 
 \subsection{Inter-Process based}
 \label{sec:problem2:inter-process}
 
 Krude \etal \cite{Krude} propose an inter-process based approach to sandbox the
-untrusted module. It is specifically designed for PaaS architectures, where
+untrusted module. It is especially designed for PaaS architectures, where
 code execution needs to be isolated to protect tenants from unauthorized access
 to their data by other tenants and to protect the host system from any type of
 intrusion by other tenants. The untrusted module is uploaded to the PaaS server
 and it is isolated in a new process. Krude \etal use the process barrier and
 the seccomp filter mechanism to restrict access to memory and to the system
 call interface. Almost all system calls are blocked for the isolated process.
-Besides memory allocation and deallocation, the isolate can communicate with OS
+Besides memory allocation and deallocation, the isolated process can communicate with OS
 by sending to request to a supervisor process via pipe, which is the IPC
 mechanism on Linux. The supervisor process will process the request and send
 the response back to the isolated process also via pipe.
@@ -95,11 +94,11 @@ the response back to the isolated process also via pipe.
 \label{sec:problem2:inter-namespace}
 
 The Inter-Namespace based approach is primary proposed for smartphone running
-Android. Nowadays, smartphones are ubiquitous. Many use the smartphone both for
+Android. Nowadays, smartphones are ubiquitous. Many people use the smartphone both for
 working and personal needs. However, the personal applications downloaded from
 the untrusted website can compromise the application issued by the trusted
 enterprise. Therefore, many users carry multiple phones to accommodate work,
-personal and geographic mobility need. Cells proposes a smartphone
+personal and geographic mobility need. Cells \cite{Cells} proposes a smartphone
 virtualization solution so that multiple virtual smartphones can run
 simultaneously on the same physical smartphone in an isolated, secure manner.
 
@@ -115,7 +114,7 @@ Cells observes that smartphones display only a single application at a time,
 and introduces a usage model which has one foreground Virtual Phone (VP) that
 is displayed and multiple background VPs that are not displayed at any given
 time. The foreground VP is always given direct access to hardware devices while
-the back ground VPs are given shared access to hardware devices when the
+the background VPs are given shared access to hardware devices when the
 foreground VP does not require exclusive access. Cells provides novel
 kernel-level and user-level device namespace mechanisms to efficiently
 multiplex hardware devices across multiple VPs. Therefore, untrusted
